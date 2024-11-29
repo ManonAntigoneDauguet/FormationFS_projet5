@@ -25,7 +25,7 @@ class TeacherControllerIntegrationTest {
     @Autowired
     private TeacherRepository teacherRepository;
 
-    @DisplayName("Given a teacher saved into the database, when a GET request is made to '/api/teacher/1', then the teacher information is returned")
+    @DisplayName("Given a teacher saved into the database and a authenticated user, when a GET request is made to '/api/teacher/1', then the teacher information is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
     void testGetTeacherById() throws Exception {
@@ -34,7 +34,7 @@ class TeacherControllerIntegrationTest {
                 .andExpect(jsonPath("$.firstName").value("Drake"));
     }
 
-    @DisplayName("Given two teachers saved into the database, when a GET request is made to '/api/teacher', then the information of the two teachers is returned")
+    @DisplayName("Given two teachers saved into the database and a authenticated user, when a GET request is made to '/api/teacher', then the information of the two teachers is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
     void testGetAllTeacher() throws Exception {
