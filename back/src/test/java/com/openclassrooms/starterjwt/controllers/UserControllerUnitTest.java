@@ -78,11 +78,11 @@ class UserControllerUnitTest {
 
     @DisplayName("Given a user with a X id, when userController.findById(X) is called, then a 200 status and a UserDto is returned")
     @Test
-    void getSuccessUserByID() {
+    void getSuccessGetUserByID() {
         // Given
         Mockito.when(userService.findById(1L)).thenReturn(user);
         // When
-        ResponseEntity<?> response = userController.findById(String.valueOf(1));
+        ResponseEntity<?> response = userController.findById("1");
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(UserDto.class, Objects.requireNonNull(response.getBody()).getClass());
@@ -94,7 +94,7 @@ class UserControllerUnitTest {
         // Given
         Mockito.when(userService.findById(1L)).thenReturn(null);
         // When
-        ResponseEntity<?> response = userController.findById(String.valueOf(1));
+        ResponseEntity<?> response = userController.findById("1");
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
@@ -106,7 +106,7 @@ class UserControllerUnitTest {
         // Given
         Mockito.when(userService.findById(1L)).thenReturn(authenticatedUser);
         // When
-        ResponseEntity<?> response = userController.save(String.valueOf(1));
+        ResponseEntity<?> response = userController.save("1");
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
@@ -118,7 +118,7 @@ class UserControllerUnitTest {
         // Given
         Mockito.when(userService.findById(1L)).thenReturn(user);
         // When
-        ResponseEntity<?> response = userController.save(String.valueOf(1));
+        ResponseEntity<?> response = userController.save("1");
         // Then
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
     }
