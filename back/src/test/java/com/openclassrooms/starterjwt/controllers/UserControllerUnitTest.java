@@ -5,6 +5,7 @@ import com.openclassrooms.starterjwt.mapper.UserMapper;
 import com.openclassrooms.starterjwt.mapper.UserMapperImpl;
 import com.openclassrooms.starterjwt.models.User;
 import com.openclassrooms.starterjwt.services.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -70,7 +71,12 @@ class UserControllerUnitTest {
         SecurityContextHolder.setContext(securityContext);
     }
 
-    @DisplayName("Given a user with a X id, when a GET request is made to '/X', then a 200 status and a UserDto is returned")
+    @AfterEach
+    void resetSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    @DisplayName("Given a user with a X id, when userController.findById(X) is called, then a 200 status and a UserDto is returned")
     @Test
     void getSuccessUserByID() {
         // Given
@@ -82,18 +88,18 @@ class UserControllerUnitTest {
         assertEquals(UserDto.class, Objects.requireNonNull(response.getBody()).getClass());
     }
 
-    @DisplayName("Given no user with a X id, when a GET request is made to '/X', then a 404 status is returned")
+    @DisplayName("Given no user with a X id, when userController.findById(X), then a 404 status is returned")
     @Test
-    void testUnfoundGetTeacherById() throws Exception {
+    void testUnFoundGetTeacherById() {
         // Given
         Mockito.when(userService.findById(1L)).thenReturn(null);
-        // WHEN
+        // When
         ResponseEntity<?> response = userController.findById(String.valueOf(1));
-        // THEN
+        // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @DisplayName("Given a authenticated user with a X id, when a DELETED request is made to '/X', then a 200 status is returned")
+    @DisplayName("Given a authenticated user with a X id, when userController.save(X), then a 200 status is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
     void getSuccessDelete() {
@@ -105,7 +111,7 @@ class UserControllerUnitTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @DisplayName("Given a user with a X id, when a DELETED request is made to '/Y', then a 401 status is returned")
+    @DisplayName("Given a user with a X id, when a DELETED request userController.save(Y), then a 401 status is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
     void getUnauthorizedDelete() {
