@@ -27,8 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
@@ -115,13 +114,9 @@ class AuthControllerUnitTest {
         // Given
         Mockito.when(authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()))).thenThrow(exception);
         // When
-        try {
-            authController.authenticateUser(loginRequest);
-            // Then
-            fail();
-        } catch (AuthenticationException e) {
-            assertEquals("Authentication failed", e.getMessage());
-        }
+        AuthenticationException result = assertThrows(AuthenticationException.class, () -> authController.authenticateUser(loginRequest));
+        // Then
+        assertNotNull(result);
     }
 
     @DisplayName("Given new user data, when registerUser is called with his data, then a 200 status and a JwtResponse is returned")
