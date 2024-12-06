@@ -39,7 +39,7 @@ class SessionControllerIntegrationTest {
     void testGetSessionByID() throws Exception {
         mockMvc.perform(get("/api/session/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Yoga pour débutants"));
+                .andExpect(jsonPath("$.name").value("Yoga pour debutants"));
     }
 
     @DisplayName("Given two sessions saved into the database and a authenticated user, when a GET request is made to '/api/session', then the information of the two sessions is returned")
@@ -48,8 +48,8 @@ class SessionControllerIntegrationTest {
     void testGetAllSessions() throws Exception {
         mockMvc.perform(get("/api/session"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name").value("Yoga pour débutants"))
-                .andExpect(jsonPath("$[1].name").value("Yoga avancé"));
+                .andExpect(jsonPath("$[0].name").value("Yoga pour debutants"))
+                .andExpect(jsonPath("$[1].name").value("Yoga avance"));
     }
 
     @DisplayName("Given a new session data, when a POST request is made to '/api/session', then the new session is saved")
@@ -74,7 +74,7 @@ class SessionControllerIntegrationTest {
         Optional<Session> oldSession = sessionRepository.findById(1L);
         assertTrue(oldSession.isPresent());
         String name = oldSession.get().getName();
-        assertEquals("Yoga pour débutants", name);
+        assertEquals("Yoga pour debutants", name);
 
         mockMvc.perform(put("/api/session/1")
                         .contentType("application/json")

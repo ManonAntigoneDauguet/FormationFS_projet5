@@ -50,7 +50,7 @@ class TeacherControllerUnitTest {
 
     @DisplayName("Given no teacher with a X id, when teacherController.findById(X), then a 404 status is returned")
     @Test
-    void testUnfoundGetTeacherById() {
+    void testUnFoundGetTeacherById() {
         // Given
         Mockito.when(teacherService.findById(1L)).thenReturn(null);
         // When
