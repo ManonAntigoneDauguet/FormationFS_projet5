@@ -70,7 +70,7 @@ class AuthControllerUnitTest {
         user.setAdmin(false);
 
         // The UserDetails matching with the saved user
-        userDetails = new UserDetailsImpl(3L, user.getEmail(), user.getFirstName(), user.getLastName(), true, user.getPassword());
+        userDetails = new UserDetailsImpl(3L, user.getEmail(), user.getFirstName(), user.getLastName(), user.isAdmin(), user.getPassword());
 
         // The login Request
         loginRequest = new LoginRequest();
