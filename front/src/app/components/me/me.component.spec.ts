@@ -4,49 +4,39 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { SessionService } from 'src/app/services/session.service';
-import { expect } from '@jest/globals';
-import { MeComponent } from './me.component';
-import { User } from 'src/app/interfaces/user.interface';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { expect } from '@jest/globals';
+import { of } from 'rxjs';
+import { SessionService } from 'src/app/services/session.service';
+import { UserService } from 'src/app/services/user.service';
+import { MeComponent } from './me.component';
 
 describe('MeComponent', () => {
   let component: MeComponent;
   let fixture: ComponentFixture<MeComponent>;
-  let router: Router;
-  let mockSessionService = jest.mocked<SessionService>;
+  const mockRouter = { navigate: jest.fn() };
+  const mockMatSnackBar = { open: jest.fn() };
 
-  const mockUser = {
-    id: 1,
-    email: 'friends@test.fr',
-    lastName: 'Tribbiani',
-    firstName: 'Joe',
-    admin: false,
-    password: 'password',
-    createdAt: new Date('1994-09-22T00:00:00'),
-    updatedAt: new Date('1994-09-22T00:00:00')
+  let mockSessionService = {
+    sessionInformation: { id: 1, admin: false },
+    logOut: jest.fn()
   };
-  const mockAdminUser = {
-    id: 2,
-    email: 'phoebe@test.fr',
-    lastName: 'Buffet',
-    firstName: 'Phoebe',
-    admin: true,
-    password: 'password',
-    createdAt: new Date('1994-09-22T00:00:00'),
-    updatedAt: new Date('1994-09-22T00:00:00')
+
+  const mockUserService = {
+    getById: jest.fn().mockReturnValue(of({
+      id: 1,
+      email: 'joe@friends.com',
+      firstName: 'Joe',
+      lastName: 'Tribbiani',
+      admin: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })),
+    delete: jest.fn().mockReturnValue(of(null))
   };
 
   beforeEach(async () => {
-    mockSessionService = {
-      sessionInformation: {
-        admin: true,
-        id: 1
-      },
-      logOut: jest.fn()
-    } as any;
-
     await TestBed.configureTestingModule({
       declarations: [MeComponent],
       imports: [
@@ -58,25 +48,52 @@ describe('MeComponent', () => {
         MatInputModule
       ],
       providers: [
-        { provide: SessionService, useValue: mockSessionService }
-      ],
+        { provide: SessionService, useValue: mockSessionService },
+        { provide: UserService, useValue: mockUserService },
+        { provide: Router, useValue: mockRouter },
+        { provide: MatSnackBar, useValue: mockMatSnackBar }],
     })
       .compileComponents();
 
     fixture = TestBed.createComponent(MeComponent);
     component = fixture.componentInstance;
-    router = TestBed.inject(Router);
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('click on arrow_back button should call the back method', () => {
+  it('should call delete method and navigate after successful deletion', (async () => {
+    // Given
+    component.user = {
+      id: 1,
+      email: 'friends@test.fr',
+      lastName: 'Tribbiani',
+      firstName: 'Joe',
+      admin: false,
+      password: 'password',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    fixture.detectChanges();
+    const deleteSpy = jest.spyOn(component, 'delete');
+    const sessionServiceSpy = jest.spyOn(mockSessionService, 'logOut');
+    const navigateSpy = jest.spyOn(mockRouter, 'navigate');
+    const snackBarSpy = jest.spyOn(mockMatSnackBar, 'open');
+    const compiled = fixture.nativeElement;
+    const raiseButton = compiled.querySelector('button[mat-raised-button]');
+    // When
+    raiseButton.click();
+    await fixture.whenStable();
+    // Then
+    expect(deleteSpy).toBeCalled();
+    expect(sessionServiceSpy).toHaveBeenCalled(); // Check if logOut was called
+    expect(navigateSpy).toHaveBeenCalledWith(['/']); // Check if navigate was called to the root
+    expect(snackBarSpy).toHaveBeenCalledWith('Your account has been deleted !', 'Close', { duration: 3000 });
+  }));
+
+  it('should call the back method when arrow_back button is clicked', () => {
     // Given
     const backSpy = jest.spyOn(component, 'back');
     // When
@@ -87,9 +104,18 @@ describe('MeComponent', () => {
     expect(backSpy).toBeCalled();
   })
 
-  it('should display user information', () => {
+  it('should display user information when there are available', () => {
     // Given
-    component.user = mockUser;
+    component.user = {
+      id: 1,
+      email: 'friends@test.fr',
+      lastName: 'Tribbiani',
+      firstName: 'Joe',
+      admin: false,
+      password: 'password',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     // When
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
@@ -100,27 +126,23 @@ describe('MeComponent', () => {
     expect(emailP.textContent).toContain('Email: friends@test.fr');
   })
 
-  it('should display "You are admin" with a admin user', () => {
+  it('should display "You are admin" if the user is an admin', () => {
     // Given
-    component.user = mockAdminUser;
+    component.user = {
+      id: 2,
+      email: 'phoebe@test.fr',
+      lastName: 'Buffet',
+      firstName: 'Phoebe',
+      admin: true,
+      password: 'password',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
     // When
     fixture.detectChanges();
     const compiled = fixture.nativeElement;
     // Then
     const adminP = compiled.querySelector('mat-card-content p:nth-child(3)');
     expect(adminP.textContent).toContain('You are admin');
-  })
-
-  it('click on raise button should call delete method', () => {
-    // Given
-    component.user = mockUser;
-    fixture.detectChanges();
-    const deleteSpy = jest.spyOn(component, 'delete');
-    const compiled = fixture.nativeElement;
-    const raiseButton = compiled.querySelector('button[mat-raised-button]');
-    // When
-    raiseButton.click();
-    // Then
-    expect(deleteSpy).toBeCalled();
   })
 });
