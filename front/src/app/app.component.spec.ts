@@ -47,7 +47,7 @@ describe('AppComponent', () => {
   });
 
 
-  it('$isLogged() should return the session state', (done) => {
+  it('should return the session state', (done) => {
     // Given
     mockSessionService.$isLogged.mockReturnValue(of(true));
     // Then
@@ -57,7 +57,7 @@ describe('AppComponent', () => {
     });
   });
 
-  it('$isLogged() at true should display session, account and logout', () => {
+  it('should display session, account and logout when $isLogged() at true ', () => {
     // Given
     mockSessionService.$isLogged.mockReturnValue(of(true));
     // When
@@ -72,7 +72,7 @@ describe('AppComponent', () => {
     expect(logoutLink.textContent).toContain('Logout');
   })
 
-  it('$isLogged() at false should display login and register', () => {
+  it('should display login and register when $isLogged() at false ', () => {
     // Given
     mockSessionService.$isLogged.mockReturnValue(of(false));
     // When
@@ -85,7 +85,7 @@ describe('AppComponent', () => {
     expect(registerSpan.textContent).toContain('Register');
   })
 
-  it('call logOut should navigate us to root', () => {
+  it('should navigate us to root when logOut is called', () => {
     const navigateSpy = jest.spyOn(router, 'navigate');
     // When
     app.logout();
@@ -94,7 +94,7 @@ describe('AppComponent', () => {
     expect(navigateSpy).toHaveBeenCalledWith(['']);
   })
 
-  it('click on Logout button should call the logout method', () => {
+  it('should call the logout method when Logout button is clicked', () => {
     // Given
     const logoutSpy = jest.spyOn(app, 'logout');
     mockSessionService.$isLogged.mockReturnValue(of(true));
