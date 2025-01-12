@@ -1,6 +1,7 @@
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,33 +9,35 @@ import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { expect } from '@jest/globals';
 
-import { RegisterComponent } from './register.component';
-import { AuthService } from '../../services/auth.service';
+
 import { Router } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { RouterTestingModule } from '@angular/router/testing';
+import { AuthService } from '../../services/auth.service';
+import { RegisterComponent } from './register.component';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
-  let mockAuthService: jest.Mocked<AuthService>;
   let router: Router;
 
   beforeEach(async () => {
-    mockAuthService = { register: jest.fn() } as any;
-
     await TestBed.configureTestingModule({
       declarations: [RegisterComponent],
       imports: [
+        HttpClientTestingModule,
         BrowserAnimationsModule,
         HttpClientModule,
         ReactiveFormsModule,
         MatCardModule,
         MatFormFieldModule,
         MatIconModule,
-        MatInputModule
+        MatInputModule,
+        RouterTestingModule.withRoutes([
+          { path: 'login', component: RegisterComponent }
+        ])
       ],
       providers: [
-        { provide: AuthService, useValue: mockAuthService },
+        AuthService
       ]
     }).compileComponents();
 
@@ -50,6 +53,8 @@ describe('RegisterComponent', () => {
 
   /************** Tests on Submit *********************/
   it('should call register and navigate us to "login" when submit is called', () => {
+    let httpTestingController: HttpTestingController;
+    httpTestingController = TestBed.inject(HttpTestingController);
     // Given
     const mockSessionInfo = {
       lastName: 'Tribbiani',
@@ -57,9 +62,6 @@ describe('RegisterComponent', () => {
       email: 'joe@friends.com',
       password: 'password'
     };
-    const registerSpy = jest
-      .spyOn(mockAuthService, 'register')
-      .mockReturnValue(of(void (0)));
     const navigateSpy = jest.spyOn(router, 'navigate');
     const submitSpy = jest.spyOn(component, "submit");
     // When
@@ -67,11 +69,16 @@ describe('RegisterComponent', () => {
     component.submit();
     // Then
     expect(submitSpy).toBeCalled();
-    expect(registerSpy).toHaveBeenCalledWith(mockSessionInfo);
+    const req = httpTestingController.expectOne('api/auth/register');
+    expect(req.request.method).toBe('POST');
+    req.flush(null); 
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
+    httpTestingController.verify();
   })
 
   it('should set onError at true when AuthService return an error', () => {
+    let httpTestingController: HttpTestingController;
+    httpTestingController = TestBed.inject(HttpTestingController);
     // Given
     const mockSessionInfo = {
       lastName: 'Tribbiani',
@@ -79,16 +86,15 @@ describe('RegisterComponent', () => {
       email: 'joe@friends.com',
       password: 'password'
     };
-    const registerSpy = jest
-      .spyOn(mockAuthService, 'register')
-      .mockReturnValue(throwError(() => new Error));
     const submitSpy = jest.spyOn(component, "submit");
     // When
     component.form.setValue(mockSessionInfo);
     component.submit();
+    const req = httpTestingController.expectOne('api/auth/register');
+    expect(req.request.method).toBe('POST');
+    req.flush('Error', { status: 500, statusText: 'Internal Server Error' }); 
     // Then
     expect(submitSpy).toBeCalled();
-    expect(registerSpy).toHaveBeenCalledWith(mockSessionInfo);
     expect(component.onError).toBe(true);
   })
 

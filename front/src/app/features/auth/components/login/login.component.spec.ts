@@ -1,4 +1,5 @@
 import { HttpClientModule } from '@angular/common/http';
+import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -10,29 +11,20 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { expect } from '@jest/globals';
 import { SessionService } from 'src/app/services/session.service';
 
-import { LoginComponent } from './login.component';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { of, throwError } from 'rxjs';
+import { LoginComponent } from './login.component';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let mockSessionService: jest.Mocked<SessionService>;
-  let mockAuthService: jest.Mocked<AuthService>;
+  let sessionService: SessionService;
   let router: Router;
 
   beforeEach(async () => {
-    mockAuthService = { login: jest.fn() } as any;
-
-    mockSessionService = {
-      $isLogged: jest.fn(),
-      logOut: jest.fn(),
-      logIn: jest.fn()
-    } as any;
-
     await TestBed.configureTestingModule({
       imports: [
+        HttpClientTestingModule,
         RouterTestingModule,
         BrowserAnimationsModule,
         HttpClientModule,
@@ -40,12 +32,14 @@ describe('LoginComponent', () => {
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        RouterTestingModule.withRoutes([
+          { path: 'sessions', component: LoginComponent }
+        ])
       ],
       declarations: [LoginComponent],
       providers: [
-        { provide: AuthService, useValue: mockAuthService },
-        { provide: SessionService, useValue: mockSessionService }
+        AuthService
       ]
     }).compileComponents();
 
@@ -53,6 +47,7 @@ describe('LoginComponent', () => {
     component = fixture.componentInstance;
     fixture.detectChanges();
     router = TestBed.inject(Router);
+    sessionService = TestBed.inject(SessionService);
   });
 
   it('should create', () => {
@@ -61,6 +56,8 @@ describe('LoginComponent', () => {
 
   /************** Tests on Submit *********************/
   it('should call login and navigate us to "session" when submit is called', () => {
+    let httpTestingController: HttpTestingController;
+    httpTestingController = TestBed.inject(HttpTestingController);
     // Given
     const mockLoginRequest = { email: 'joe@friends.com', password: 'password' };
     const mockSessionInfo = {
@@ -72,35 +69,36 @@ describe('LoginComponent', () => {
       firstName: 'Joe',
       admin: false,
     };
-    const loginAuthServiceSpy = jest
-      .spyOn(mockAuthService, 'login')
-      .mockReturnValue(of(mockSessionInfo));
-    const logInSessionServiceSpy = jest.spyOn(mockSessionService, 'logIn');
-    const navigateSpy = jest.spyOn(router, 'navigate');
     const submitSpy = jest.spyOn(component, "submit");
+    const logInSessionServiceSpy = jest.spyOn(sessionService, 'logIn');
+    const navigateSpy = jest.spyOn(router, 'navigate'); 
     // When
     component.form.setValue(mockLoginRequest);
     component.submit();
     // Then
     expect(submitSpy).toBeCalled();
-    expect(loginAuthServiceSpy).toHaveBeenCalledWith(mockLoginRequest);
+    const req = httpTestingController.expectOne('api/auth/login');
+    expect(req.request.method).toBe('POST');
+    req.flush(mockSessionInfo);
     expect(logInSessionServiceSpy).toHaveBeenCalledWith(mockSessionInfo);
     expect(navigateSpy).toHaveBeenCalledWith(['/sessions']);
+    httpTestingController.verify();
   })
 
   it('should set onError at true when AuthService return an error', () => {
+    let httpTestingController: HttpTestingController;
+    httpTestingController = TestBed.inject(HttpTestingController);
     // Given
     const mockLoginRequest = { email: 'joe@friends.com', password: 'password' };
-    const loginAuthServiceSpy = jest
-      .spyOn(mockAuthService, 'login')
-      .mockReturnValue(throwError(() => new Error));
     const submitSpy = jest.spyOn(component, "submit");
     // When
     component.form.setValue(mockLoginRequest);
     component.submit();
+    const req = httpTestingController.expectOne('api/auth/login');
+    expect(req.request.method).toBe('POST');
+    req.flush('Error', { status: 500, statusText: 'Internal Server Error' });
     // Then
     expect(submitSpy).toBeCalled();
-    expect(loginAuthServiceSpy).toHaveBeenCalledWith(mockLoginRequest);
     expect(component.onError).toBe(true);
   })
 
