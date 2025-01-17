@@ -1,12 +1,12 @@
 import { HttpClientModule } from '@angular/common/http';
-import { TestBed, ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { expect } from '@jest/globals';
 import { of } from 'rxjs';
 import { AppComponent } from './app.component';
 import { SessionService } from './services/session.service';
-import { Router } from '@angular/router';
 
 
 describe('AppComponent', () => {

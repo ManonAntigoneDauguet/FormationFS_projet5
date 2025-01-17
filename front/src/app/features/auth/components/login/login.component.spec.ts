@@ -7,11 +7,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { expect } from '@jest/globals';
 import { SessionService } from 'src/app/services/session.service';
-
-import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LoginComponent } from './login.component';
 
@@ -19,7 +18,7 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let sessionService: SessionService;
-  let router: Router;
+  const mockRouter = { navigate: jest.fn() };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -39,14 +38,14 @@ describe('LoginComponent', () => {
       ],
       declarations: [LoginComponent],
       providers: [
-        AuthService
+        AuthService,
+        { provide: Router, useValue: mockRouter },
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    router = TestBed.inject(Router);
     sessionService = TestBed.inject(SessionService);
   });
 
@@ -71,7 +70,7 @@ describe('LoginComponent', () => {
     };
     const submitSpy = jest.spyOn(component, "submit");
     const logInSessionServiceSpy = jest.spyOn(sessionService, 'logIn');
-    const navigateSpy = jest.spyOn(router, 'navigate'); 
+    const navigateSpy = jest.spyOn(mockRouter, 'navigate');
     // When
     component.form.setValue(mockLoginRequest);
     component.submit();

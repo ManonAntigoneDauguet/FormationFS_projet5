@@ -7,18 +7,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { expect } from '@jest/globals';
-
-
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
+import { expect } from '@jest/globals';
 import { AuthService } from '../../services/auth.service';
 import { RegisterComponent } from './register.component';
+import { SessionApiService } from 'src/app/features/sessions/services/session-api.service';
 
 describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
-  let router: Router;
+  const mockRouter = { navigate: jest.fn() };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -37,14 +36,14 @@ describe('RegisterComponent', () => {
         ])
       ],
       providers: [
-        AuthService
+        AuthService,
+        { provide: Router, useValue: mockRouter }
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-    router = TestBed.inject(Router);
   });
 
   it('should create', () => {
@@ -62,7 +61,7 @@ describe('RegisterComponent', () => {
       email: 'joe@friends.com',
       password: 'password'
     };
-    const navigateSpy = jest.spyOn(router, 'navigate');
+    const navigateSpy = jest.spyOn(mockRouter, 'navigate');
     const submitSpy = jest.spyOn(component, "submit");
     // When
     component.form.setValue(mockSessionInfo);
@@ -71,7 +70,7 @@ describe('RegisterComponent', () => {
     expect(submitSpy).toBeCalled();
     const req = httpTestingController.expectOne('api/auth/register');
     expect(req.request.method).toBe('POST');
-    req.flush(null); 
+    req.flush(null);
     expect(navigateSpy).toHaveBeenCalledWith(['/login']);
     httpTestingController.verify();
   })
@@ -92,7 +91,7 @@ describe('RegisterComponent', () => {
     component.submit();
     const req = httpTestingController.expectOne('api/auth/register');
     expect(req.request.method).toBe('POST');
-    req.flush('Error', { status: 500, statusText: 'Internal Server Error' }); 
+    req.flush('Error', { status: 500, statusText: 'Internal Server Error' });
     // Then
     expect(submitSpy).toBeCalled();
     expect(component.onError).toBe(true);

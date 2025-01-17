@@ -16,12 +16,9 @@ describe('MeComponent', () => {
   let component: MeComponent;
   let fixture: ComponentFixture<MeComponent>;
   const mockRouter = { navigate: jest.fn() };
-  const mockMatSnackBar = { open: jest.fn() };
+  let sessionService: SessionService;
 
-  let mockSessionService = {
-    sessionInformation: { id: 1, admin: false },
-    logOut: jest.fn()
-  };
+  const mockMatSnackBar = { open: jest.fn() };
 
   const mockUserService = {
     getById: jest.fn().mockReturnValue(of({
@@ -48,7 +45,7 @@ describe('MeComponent', () => {
         MatInputModule
       ],
       providers: [
-        { provide: SessionService, useValue: mockSessionService },
+        SessionService,
         { provide: UserService, useValue: mockUserService },
         { provide: Router, useValue: mockRouter },
         { provide: MatSnackBar, useValue: mockMatSnackBar }],
@@ -57,7 +54,17 @@ describe('MeComponent', () => {
 
     fixture = TestBed.createComponent(MeComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    sessionService = TestBed.inject(SessionService);
+    sessionService.logIn({
+      type: "type",
+      id: 1,
+      token: 'abc123',
+      username: "Drake",
+      lastName: 'Tribbiani',
+      firstName: 'Joe',
+      admin: false,
+    })
+    fixture.detectChanges(); 
   });
 
   it('should create', () => {
@@ -78,7 +85,7 @@ describe('MeComponent', () => {
     };
     fixture.detectChanges();
     const deleteSpy = jest.spyOn(component, 'delete');
-    const sessionServiceSpy = jest.spyOn(mockSessionService, 'logOut');
+    const logOutSpy = jest.spyOn(sessionService, 'logOut');
     const navigateSpy = jest.spyOn(mockRouter, 'navigate');
     const snackBarSpy = jest.spyOn(mockMatSnackBar, 'open');
     const compiled = fixture.nativeElement;
@@ -88,8 +95,8 @@ describe('MeComponent', () => {
     await fixture.whenStable();
     // Then
     expect(deleteSpy).toBeCalled();
-    expect(sessionServiceSpy).toHaveBeenCalled(); // Check if logOut was called
-    expect(navigateSpy).toHaveBeenCalledWith(['/']); // Check if navigate was called to the root
+    expect(logOutSpy).toHaveBeenCalled();
+    expect(navigateSpy).toHaveBeenCalledWith(['/']);
     expect(snackBarSpy).toHaveBeenCalledWith('Your account has been deleted !', 'Close', { duration: 3000 });
   }));
 
