@@ -13,7 +13,7 @@ describe('Register spec', () => {
         cy.get('button[type="submit"]').should("not.be.disabled");
         cy.get('button[type="submit"]').click();
 
-        cy.url().should('include', '/register');
+        cy.location('pathname').should('eq', '/register');
         cy.contains('An error occurred');
     })
 
@@ -37,7 +37,7 @@ describe('Register spec', () => {
         cy.get('button[type="submit"]').should("not.be.disabled");
         cy.get('button[type="submit"]').click();
 
-        cy.url().should('include', '/login');
+        cy.location('pathname').should('eq', '/login');
     })
 
 

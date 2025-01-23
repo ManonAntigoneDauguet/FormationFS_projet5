@@ -3,12 +3,12 @@ describe('Login spec', () => {
   it('Login server error', () => {
     cy.visit('/login');
 
-    cy.intercept('POST', '/api/auth/login', Error);
+    cy.intercept('POST', '/api/auth/login', Error).as('login');
 
     cy.get('input[formControlName=email]').type("yoga@studio.com");
     cy.get('input[formControlName=password]').type(`${"test!1234"}{enter}{enter}`);
 
-    cy.url().should('include', '/login');
+    cy.location('pathname').should('eq', '/login');
     cy.contains('An error occurred');
   })
 
@@ -25,21 +25,15 @@ describe('Login spec', () => {
         lastName: 'lastName',
         admin: true
       },
-    });
-
-    cy.intercept(
-      {
-        method: 'GET',
-        url: '/api/session',
-      },
-      []).as('session');
+    }).as('login');
+    cy.intercept('GET', '/api/session', []).as('sessions');
 
     cy.get('input[formControlName=email]').type("yoga@studio.com");
     cy.get('input[formControlName=password]').type("test!1234");
     cy.get('button[type="submit"]').should("not.be.disabled");
     cy.get('button[type="submit"]').click();
 
-    cy.url().should('include', '/sessions');
+    cy.location('pathname').should('eq', '/sessions');
   })
 
 
