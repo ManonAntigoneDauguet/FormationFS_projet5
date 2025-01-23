@@ -79,7 +79,9 @@ describe('Account spec', () => {
             body: mockTeacher1
         });
 
-        cy.contains('button', 'Detail').click();
+        cy.get('.items .item').eq(0).within(() => {
+            cy.contains('button', 'Detail').click();
+        });
 
         cy.contains('Session1').should('be.visible');
         cy.contains('February 1, 2025').should('be.visible');
@@ -99,7 +101,10 @@ describe('Account spec', () => {
             statusCode: 200,
         }).as('delete');
 
-        cy.contains('button', 'Detail').click();
+        cy.get('.items .item').eq(0).within(() => {
+            cy.contains('button', 'Detail').click();
+        });
+        
         cy.contains('button', 'Delete').click();
         cy.wait('@delete');
         cy.contains('Session deleted !').should('be.visible');
