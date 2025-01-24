@@ -53,6 +53,8 @@ Launching e2e test:
 
 > npm run e2e
 
+Run the "index" spec, into `index.cy.ts` if you want to run all the tests and have the entire coverage.
+
 Generate coverage report (you should launch e2e test before):
 
 > npm run e2e:coverage
