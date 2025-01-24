@@ -41,6 +41,15 @@ class TeacherTest {
     }
 
     @Test
+    void testNotEquals() {
+        // When
+        boolean result = teacher1.equals(teacher3);
+        // Then
+        assertFalse(result);
+        assertNotEquals(teacher1.hashCode(), teacher3.hashCode());
+    }
+
+    @Test
     void testSameIdsEquals() {
         // When
         boolean result = teacher2.equals(teacher3);

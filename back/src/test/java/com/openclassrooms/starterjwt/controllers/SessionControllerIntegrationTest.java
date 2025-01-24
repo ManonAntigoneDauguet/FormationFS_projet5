@@ -36,16 +36,24 @@ class SessionControllerIntegrationTest {
     @DisplayName("Given a session saved into the database and a authenticated user, when a GET request is made to '/api/session/1', then the session information is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testGetSessionByID() throws Exception {
+    void testSuccessGetSessionByID() throws Exception {
         mockMvc.perform(get("/api/session/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Yoga pour debutants"));
     }
 
+    @DisplayName("Given a authenticated user, when a GET request is made to '/api/session/{id}' with an unknown id, then a 404 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testUnFoundGetSessionByID() throws Exception {
+        mockMvc.perform(get("/api/session/3"))
+                .andExpect(status().is(404));
+    }
+
     @DisplayName("Given two sessions saved into the database and a authenticated user, when a GET request is made to '/api/session', then the information of the two sessions is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testGetAllSessions() throws Exception {
+    void testSuccessGetAllSessions() throws Exception {
         mockMvc.perform(get("/api/session"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Yoga pour debutants"))
@@ -55,7 +63,7 @@ class SessionControllerIntegrationTest {
     @DisplayName("Given a new session data, when a POST request is made to '/api/session', then the new session is saved")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testCreateSession() throws Exception {
+    void testSuccessCreateSession() throws Exception {
         Optional<Session> oldSession = sessionRepository.findById(3L);
         assertTrue(oldSession.isEmpty());
 
@@ -67,10 +75,25 @@ class SessionControllerIntegrationTest {
         assertTrue(session.isPresent());
     }
 
+    @DisplayName("Given a incorrect new session data, when a POST request is made to '/api/session', then a 400 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testErrorFiledCreateSession() throws Exception {
+        String incorrectSessionJson = "{\"name\":\"\",\"date\":\"2024-12-15T10:30:00\",\"teacher_id\":1,\"description\":\"description\"}";
+
+        Optional<Session> oldSession = sessionRepository.findById(3L);
+        assertTrue(oldSession.isEmpty());
+
+        mockMvc.perform(post("/api/session")
+                        .contentType("application/json")
+                        .content(incorrectSessionJson))
+                .andExpect(status().is(400));
+    }
+
     @DisplayName("Given a session saved into the database with an X id and a authenticated user, when a PUT request is made to '/api/session/X' with new information, then the session information is updated")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testUpdateSession() throws Exception {
+    void testSuccessUpdateSession() throws Exception {
         Optional<Session> oldSession = sessionRepository.findById(1L);
         assertTrue(oldSession.isPresent());
         String name = oldSession.get().getName();
@@ -81,6 +104,21 @@ class SessionControllerIntegrationTest {
                         .content(sessionJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Yoga Sexy avec Joe"));
+    }
+
+    @DisplayName("Given a incorrect new data, a session saved with an X id and a authenticated user, when a PUT request is made to '/api/session/X' with new information, then a 400 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testErrorFiledUpdateSession() throws Exception {
+        String incorrectSessionJson = "{\"name\":\"\",\"date\":\"2024-12-15T10:30:00\",\"teacher_id\":1,\"description\":\"description\"}";
+
+        Optional<Session> oldSession = sessionRepository.findById(1L);
+        assertTrue(oldSession.isPresent());
+
+        mockMvc.perform(put("/api/session/1")
+                        .contentType("application/json")
+                        .content(incorrectSessionJson))
+                .andExpect(status().is(400));
     }
 
     @DisplayName("Given a session saved into the database with an X id and a authenticated user, when a DELETE request is made to '/api/session/X', then the session is removed")
@@ -111,10 +149,24 @@ class SessionControllerIntegrationTest {
         assertTrue(session.get().getUsers().stream().anyMatch(o -> o.getId().equals(1L)));
     }
 
+    @DisplayName("Given an authenticated user with a Y id and a session with an X id that already participate, when a POST request is made to '/api/session/X/participate/Y', then a 400 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testAlreadyParticipateSession() throws Exception {
+        Optional<Session> session = sessionRepository.findById(2L);
+        assertTrue(session.isPresent());
+        assertTrue(session.get().getUsers().stream().anyMatch(o -> o.getId().equals(1L)));
+
+        mockMvc.perform(post("/api/session/2/participate/1")
+                        .contentType("application/json")
+                        .content(sessionJson))
+                .andExpect(status().is(400));
+    }
+
     @DisplayName("Given a session with an X id and a authenticated user with a Y id who participate at this session, when a DELETE request is made to '/api/session/X/participate/Y', then the user is removed from the session users")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testNoLongerParticipate() throws Exception {
+    void testSuccessNoLongerParticipate() throws Exception {
         Optional<Session> session = sessionRepository.findById(2L);
         assertTrue(session.isPresent());
         assertTrue(session.get().getUsers().stream().anyMatch(o -> o.getId().equals(1L)));
@@ -122,5 +174,17 @@ class SessionControllerIntegrationTest {
         mockMvc.perform(delete("/api/session/2/participate/1"))
                 .andExpect(status().isOk());
         assertFalse(session.get().getUsers().stream().anyMatch(o -> o.getId().equals(1L)));
+    }
+
+    @DisplayName("Given a session with an X id and a authenticated user with a Y id who not participate at this session, when a DELETE request is made to '/api/session/X/participate/Y', then a 400 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testNoParticipationNoLongerParticipate() throws Exception {
+        Optional<Session> session = sessionRepository.findById(1L);
+        assertTrue(session.isPresent());
+        assertFalse(session.get().getUsers().stream().anyMatch(o -> o.getId().equals(1L)));
+
+        mockMvc.perform(delete("/api/session/1/participate/1"))
+                .andExpect(status().is(400));
     }
 }

@@ -59,6 +59,15 @@ class SessionTest {
     }
 
     @Test
+    void testNotEquals() {
+        // When
+        boolean result = session1.equals(session3);
+        // Then
+        assertFalse(result);
+        assertNotEquals(session1.hashCode(), session3.hashCode());
+    }
+
+    @Test
     void testSameIdsEquals() {
         // When
         boolean result = session2.equals(session3);

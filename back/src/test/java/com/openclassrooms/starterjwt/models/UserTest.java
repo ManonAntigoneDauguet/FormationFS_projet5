@@ -98,6 +98,15 @@ class UserTest {
     }
 
     @Test
+    void testNotEquals() {
+        // When
+        boolean result = user1.equals(user3);
+        // Then
+        assertFalse(result);
+        assertNotEquals(user1.hashCode(), user3.hashCode());
+    }
+
+    @Test
     void testSameIdsEquals() {
         // When
         boolean result = user2.equals(user3);

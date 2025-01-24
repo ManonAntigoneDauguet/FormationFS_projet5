@@ -26,10 +26,18 @@ class TeacherControllerIntegrationTest {
     @DisplayName("Given a teacher saved into the database and a authenticated user, when a GET request is made to '/api/teacher/1', then the teacher information is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testGetTeacherById() throws Exception {
+    void testSuccessGetTeacherById() throws Exception {
         mockMvc.perform(get("/api/teacher/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.firstName").value("Drake"));
+    }
+
+    @DisplayName("Given a teacher not saved into the database and a authenticated user, when a GET request is made to '/api/teacher/1', then a 404 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testUnFoundGetTeacherById() throws Exception {
+        mockMvc.perform(get("/api/teacher/3"))
+                .andExpect(status().is(404));
     }
 
     @DisplayName("Given two teachers saved into the database and a authenticated user, when a GET request is made to '/api/teacher', then the information of the two teachers is returned")
