@@ -72,3 +72,8 @@ Launching test:
 for following change:
 
 > npm run test:watch
+
+for coverage report:
+
+> node_modules/.bin/jest --coverage
+
