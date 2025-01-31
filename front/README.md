@@ -1,79 +1,39 @@
-# Yoga
+# Yoga App !
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
 
-## Start the project
+This projet is the front part of a global project.   
+To see the global information about this projet, go [there](../README.md) !
 
-Git clone:
+## How to install and run the project
 
-> git clone https://github.com/OpenClassrooms-Student-Center/P5-Full-Stack-testing
+Go to the "front" folder.
 
-Go inside folder:
+`npm install` allows you to install dependencies.  
+`npm run start` allows you to launch the front-end.   
 
-> cd yoga
-
-Install dependencies:
-
-> npm install
-
-Launch Front-end:
-
-> npm run start;
-
-
-## Ressources
-
-### Mockoon env 
-
-### Postman collection
-
-For Postman import the collection
-
-> ressources/postman/yoga.postman_collection.json 
-
-by following the documentation: 
-
-https://learning.postman.com/docs/getting-started/importing-and-exporting-data/#importing-data-into-postman
-
-
-### MySQL
-
-SQL script for creating the schema is available `ressources/sql/script.sql`
+You can now go to the web site [Yoga-app](http://localhost:4200/) !  
 
 By default the admin account is:
 - login: yoga@studio.com
 - password: test!1234
 
+## How to run the test
 
-### Test
-
-#### E2E
-
-Launching e2e test:
-
-> npm run e2e
-
-Run the "index" spec, into `index.cy.ts` if you want to run all the tests and have the entire coverage.
-
-Generate coverage report (you should launch e2e test before):
-
-> npm run e2e:coverage
-
-Report is available here:
-
-> front/coverage/lcov-report/index.html
-
-#### Unitary test
+### Unitary tests
 
 Launching test:
 
-> npm run test
+`npm run test` allows you to run all the unitary tests.  
+`npm run test:watch` allows you to follow change.  
+`node_modules/.bin/jest --coverage` allows you to display the coverage report.
 
-for following change:
+### E2E test
 
-> npm run test:watch
+`npm run e2e` allows you to launchthe e2e test.   
 
-for coverage report:
+When the Cypress util is open, choose a browser for the tests and `Start E2E Testing in`.   
+Run the "index" spec, into `index.cy.ts` if you want to run all the tests and have the entire coverage.
 
-> node_modules/.bin/jest --coverage
-
+After launching e2e test, `npm run e2e:coverage` allows you to generate coverage report.
+Report is available in [coverage/lcov-report/index.html](./coverage/lcov-report/index.html). Lauch the html page to display the visual report.
