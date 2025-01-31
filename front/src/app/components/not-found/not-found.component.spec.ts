@@ -21,4 +21,13 @@ describe('NotFoundComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should dipslay "Page not found !" in the center of the page', () => {
+    const compiled = fixture.nativeElement;
+    const h1 = compiled.querySelector('h1');
+    expect(h1.textContent).toContain('Page not found !');
+    const div = compiled.querySelector('div');
+    expect(div.classList).toContain('flex');
+    expect(div.classList).toContain('justify-center');
+  })
 });
