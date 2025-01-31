@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserMapperImplTest {
 
@@ -62,9 +61,17 @@ class UserMapperImplTest {
         assertEquals("Monica", convertedUser.getFirstName());
         assertEquals("Geller", convertedUser.getLastName());
         assertEquals("password2", convertedUser.getPassword());
-        assertEquals(true, convertedUser.isAdmin());
+        assertTrue(convertedUser.isAdmin());
         assertEquals(localDate, convertedUser.getCreatedAt());
         assertEquals(localDate, convertedUser.getUpdatedAt());
+    }
+
+    @Test
+    void testNullToEntity() {
+        // When
+        User convertedUser = userMapper.toEntity((UserDto) null);
+        // Then
+        assertNull(convertedUser);
     }
 
     @Test
@@ -75,6 +82,14 @@ class UserMapperImplTest {
         assertNotNull(convertedUsers);
         assertEquals(2, convertedUsers.size());
         assertEquals("Monica", convertedUsers.get(0).getFirstName());
+    }
+
+    @Test
+    void testNullListToEntity() {
+        // When
+        List<User> convertedUsers = userMapper.toEntity((List<UserDto>) null);
+        // Then
+        assertNull(convertedUsers);
     }
 
     /************************* toDto() ****************************/
@@ -95,6 +110,14 @@ class UserMapperImplTest {
     }
 
     @Test
+    void testNullToDto() {
+        // When
+        UserDto convertedUser = userMapper.toDto((User) null);
+        // Then
+        assertNull(convertedUser);
+    }
+
+    @Test
     void testSuccessListToDto() {
         // When
         List<UserDto> convertedUsers = userMapper.toDto(Arrays.asList(user, user));
@@ -104,4 +127,11 @@ class UserMapperImplTest {
         assertEquals("Rachel", convertedUsers.get(0).getFirstName());
     }
 
+    @Test
+    void testNullListToDto() {
+        // When
+        List<UserDto> convertedUsers = userMapper.toDto((List<User>) null);
+        // Then
+        assertNull(convertedUsers);
+    }
 }

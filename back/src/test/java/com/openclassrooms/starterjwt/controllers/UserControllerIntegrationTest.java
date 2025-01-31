@@ -35,10 +35,18 @@ class UserControllerIntegrationTest {
     @DisplayName("Given a user saved into the database and a authenticated user, when a GET request is made to '/api/user/1', then the user information is returned")
     @Test
     @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
-    void testGetUserById() throws Exception {
+    void testSuccessGetUserById() throws Exception {
         mockMvc.perform(get("/api/user/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("yoga@studio.com"));
+    }
+
+    @DisplayName("Given a authenticated user, when a GET request is made to '/api/user/{id}' with an unknown id, then a 404 status is returned")
+    @Test
+    @WithMockUser(username = "yoga@studio.com", roles = {"ADMIN"})
+    void testUnFoundGetUserById() throws Exception {
+        mockMvc.perform(get("/api/user/3"))
+                .andExpect(status().is(404));
     }
 
     @DisplayName("Given a user saved into the database and a authenticated user, when a DELETE request is made to '/api/user/1', then the user is removed")

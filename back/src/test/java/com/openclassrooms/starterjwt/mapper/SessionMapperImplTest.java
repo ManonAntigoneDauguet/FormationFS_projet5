@@ -18,8 +18,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class SessionMapperImplTest {
@@ -114,6 +113,14 @@ class SessionMapperImplTest {
     }
 
     @Test
+    void testNullToEntity() {
+        // When
+        Session convertedSession = sessionMapper.toEntity((SessionDto) null);
+        // Then
+        assertNull(convertedSession);
+    }
+
+    @Test
     void testSuccessListToEntity() {
         // Given
         Mockito.when(teacherService.findById(1L)).thenReturn(teacher);
@@ -123,6 +130,14 @@ class SessionMapperImplTest {
         assertNotNull(convertedSessions);
         assertEquals(2, convertedSessions.size());
         assertEquals("Phoebe", convertedSessions.get(0).getTeacher().getFirstName());
+    }
+
+    @Test
+    void testNullListToEntity() {
+        // When
+        List<Session> convertedSessions = sessionMapper.toEntity((List<SessionDto>) null);
+        // Then
+        assertNull(convertedSessions);
     }
 
     /************************* toDto() ****************************/
@@ -144,6 +159,14 @@ class SessionMapperImplTest {
     }
 
     @Test
+    void testNullToDto() {
+        // When
+        SessionDto convertedSession = sessionMapper.toDto((Session) null);
+        // Then
+        assertNull(convertedSession);
+    }
+
+    @Test
     void testSuccessListToDto() {
         // When
         List<SessionDto> convertedSessions = sessionMapper.toDto(Arrays.asList(session, session));
@@ -151,5 +174,13 @@ class SessionMapperImplTest {
         assertNotNull(convertedSessions);
         assertEquals(2, convertedSessions.size());
         assertEquals(1L, convertedSessions.get(0).getTeacher_id());
+    }
+
+    @Test
+    void testNullListToDto() {
+        // When
+        List<SessionDto> convertedSessions = sessionMapper.toDto((List<Session>) null);
+        // Then
+        assertNull(convertedSessions);
     }
 }

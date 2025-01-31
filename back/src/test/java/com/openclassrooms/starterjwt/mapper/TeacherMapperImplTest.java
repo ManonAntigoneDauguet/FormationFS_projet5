@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TeacherMapperImplTest {
 
@@ -59,6 +58,14 @@ class TeacherMapperImplTest {
     }
 
     @Test
+    void testNullToEntity() {
+        // When
+        Teacher convertedTeacher = teacherMapper.toEntity((TeacherDto) null);
+        // Then
+        assertNull(convertedTeacher);
+    }
+
+    @Test
     void testSuccessListToEntity() {
         // When
         List<Teacher> convertedTeachers = teacherMapper.toEntity(Arrays.asList(teacherDto, teacherDto));
@@ -66,6 +73,14 @@ class TeacherMapperImplTest {
         assertNotNull(convertedTeachers);
         assertEquals(2, convertedTeachers.size());
         assertEquals("Joe", convertedTeachers.get(0).getFirstName());
+    }
+
+    @Test
+    void testNullListToEntity() {
+        // When
+        List<Teacher> convertedTeachers = teacherMapper.toEntity((List<TeacherDto>) null);
+        // Then
+        assertNull(convertedTeachers);
     }
 
     /************************* toDto() ****************************/
@@ -84,12 +99,28 @@ class TeacherMapperImplTest {
     }
 
     @Test
-    void testSuucessListToDto() {
+    void testNullToDto() {
+        // When
+        TeacherDto convertedTeacher = teacherMapper.toDto((Teacher) null);
+        // Then
+        assertNull(convertedTeacher);
+    }
+
+    @Test
+    void testSuccessListToDto() {
         // When
         List<TeacherDto> convertedTeachers = teacherMapper.toDto(Arrays.asList(teacher, teacher));
         // Then
         assertNotNull(convertedTeachers);
         assertEquals(2, convertedTeachers.size());
         assertEquals(1L, convertedTeachers.get(0).getId());
+    }
+
+    @Test
+    void testNullListToDto() {
+        // When
+        List<TeacherDto> convertedTeachers = teacherMapper.toDto((List<Teacher>) null);
+        // Then
+        assertNull(convertedTeachers);
     }
 }

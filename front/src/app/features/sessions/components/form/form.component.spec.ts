@@ -14,6 +14,7 @@ import { SessionService } from 'src/app/services/session.service';
 import { SessionApiService } from '../../services/session-api.service';
 
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
 import { FormComponent } from './form.component';
 
 describe('FormComponent', () => {
@@ -27,6 +28,19 @@ describe('FormComponent', () => {
       admin: true
     }
   }
+
+  const mockSession = {
+    id: 1,
+    name: 'session1',
+    description: 'description1',
+    date: new Date('2025-02-01T14:45:30'),
+    teacher_id: 1,
+    users: [1, 2],
+    createdAt: new Date('2025-01-23T14:45:30'),
+    updatedAt: new Date('2025-01-24T14:45:30')
+  };
+
+  const mockObservableSession = of(mockSession);
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -73,14 +87,16 @@ describe('FormComponent', () => {
 
   it('should display session information if url contains "update"', () => {
     // Given
-    const detailSpy = jest.spyOn(sessionApiService, 'detail');
+    jest.spyOn(mockObservableSession, 'subscribe');
+    jest.spyOn(sessionApiService, 'detail').mockReturnValue(mockObservableSession);
     jest.spyOn(router, 'url', 'get').mockReturnValue('/sessions/update');
     // When
     component = fixture.componentInstance;
     fixture.detectChanges();
     // Then
     expect(component.onUpdate).toBe(true);
-    expect(detailSpy).toBeCalled();
+    expect(sessionApiService.detail).toBeCalled();
+    expect(mockObservableSession.subscribe).toBeCalled();
     const compiled = fixture.nativeElement;
     const h1 = compiled.querySelector('h1');
     expect(h1.textContent).toContain('Update session');
