@@ -58,7 +58,7 @@ class TeacherMapperImplTest {
     }
 
     @Test
-    void testNUllToEntity() {
+    void testNullToEntity() {
         // When
         Teacher convertedTeacher = teacherMapper.toEntity((TeacherDto) null);
         // Then

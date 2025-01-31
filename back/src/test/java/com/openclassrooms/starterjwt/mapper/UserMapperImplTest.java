@@ -120,6 +120,16 @@ class UserMapperImplTest {
     @Test
     void testSuccessListToDto() {
         // When
+        List<UserDto> convertedUsers = userMapper.toDto(Arrays.asList(user, user));
+        // Then
+        assertNotNull(convertedUsers);
+        assertEquals(2, convertedUsers.size());
+        assertEquals("Rachel", convertedUsers.get(0).getFirstName());
+    }
+
+    @Test
+    void testNullListToDto() {
+        // When
         List<UserDto> convertedUsers = userMapper.toDto((List<User>) null);
         // Then
         assertNull(convertedUsers);
